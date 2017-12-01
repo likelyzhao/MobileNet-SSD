@@ -4,7 +4,7 @@ import cv2
 caffe_root = '/workspace/caffe/'
 sys.path.insert(0, caffe_root + 'python')
 import caffe
-
+import random
 
 #net_file= 'MobileNetSSD_deploy.prototxt'
 #caffe_model='MobileNetSSD_deploy.caffemodel'
@@ -60,14 +60,12 @@ def detect(net,image_file,args):
             color = (random.randint(0, 256), random.randint(0, 256), random.randint(0, 256))  # generate a random color
             p1 = (box[i][0], box[i][1])
             p2 = (box[i][2], box[i][3])
-            cv2.putText(im, '%s %.3f' % (class_names[j], score), (bbox[0], bbox[1] + 10),
-                        color=color_white, fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=0.5)
             cv2.rectangle(origimg, p1, p2, color=color,thickness=2)
             p3 = (p1[0], p1[1]+15)
             title = "%s:%.2f" % (CLASSES[int(cls[i])], conf[i])
             cv2.putText(origimg, title, p3, cv2.FONT_ITALIC, 0.6, (255, 255, 255), 1)
         vis_image_dir = 'vis'
-        result_file = os.path.join(vis_image_dir, index.strip().split('/')[-1] + '_result' + '.JPEG')
+        result_file = os.path.join(vis_image_dir, image_file.strip().split('/')[-1] + '_result' + '.JPEG')
         cv2.imwrite(result_file, origimg)
     return box,conf,cls
 
@@ -122,7 +120,6 @@ def test_file_list(net,args):
     for index , image_file in enumerate(image_set_index):
         print("processing {}/{} image:{}".format(index, num_images, image_file))
         box,conf,cls = detect(net,image_file,args)
-
         ress,ress_s = generate_ava_json(image_file,box,conf,cls,args.thresh)
         import json 
         if len(ress['label']['detect']['general_d']['bbox'])>=0:
